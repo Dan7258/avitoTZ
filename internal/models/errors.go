@@ -4,5 +4,6 @@ import "errors"
 
 var (
 	ZeroUpdatedRowsError = errors.New("zero updated rows")
-	UserNotFoundError    = errors.New("user not found")
+	NotFoundError        = errors.New("not found")
+	NotChangedError      = errors.New("not changed")
 )

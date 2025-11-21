@@ -16,4 +16,5 @@ type Model interface {
 
 	CreatePullRequest(pullRequest *PullRequest) error
 	SetPullRequestMerged(pullRequest *PullRequest) error
+	ReassignPullRequest(pullRequestID, oldReviewerId string) (*PullRequest, error)
 }

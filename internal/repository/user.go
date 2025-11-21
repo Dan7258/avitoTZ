@@ -10,7 +10,7 @@ func (db *PostgresDB) SetUserIsActive(user *models.User) error {
 		Scan(user)
 	if res.Error == nil {
 		if res.RowsAffected == 0 {
-			return ZeroUpdatedRowsError
+			return models.ZeroUpdatedRowsError
 		}
 	}
 	return res.Error

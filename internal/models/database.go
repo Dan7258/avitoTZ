@@ -13,4 +13,7 @@ type Model interface {
 
 	AddTeam(team *Team) error
 	GetTeamByName(teamName string) (*Team, error)
+
+	CreatePullRequest(pullRequest *PullRequest) error
+	SetPullRequestMerged(pullRequest *PullRequest) error
 }

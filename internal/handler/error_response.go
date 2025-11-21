@@ -18,15 +18,21 @@ const (
 )
 
 type ErrorResponse struct {
-	Code    CodeError `json:"code"`
-	Message string    `json:"message"`
+	Error struct {
+		Code    CodeError `json:"code"`
+		Message string    `json:"message"`
+	} `json:"error"`
 }
 
 func jsonError(w http.ResponseWriter, status CodeError, msg string, httpCode int) {
-	json.NewEncoder(w).Encode(&ErrorResponse{
-		Code:    status,
-		Message: msg,
-	})
-	w.Header().Set("Content-Type", "application/json")
+	errorResponse := ErrorResponse{
+		Error: struct {
+			Code    CodeError `json:"code"`
+			Message string    `json:"message"`
+		}{Code: status, Message: msg},
+	}
 	w.WriteHeader(httpCode)
+	json.NewEncoder(w).Encode(errorResponse)
+	w.Header().Set("Content-Type", "application/json")
+
 }

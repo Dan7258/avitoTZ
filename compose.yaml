@@ -1,0 +1,10 @@
+services:
+  db:
+    image: postgres:latest
+    container_name: avitoDB
+    env_file:
+      - internal/config/.env
+    ports:
+      - "5432:5432"
+volumes:
+  pgdata:

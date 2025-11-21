@@ -15,3 +15,11 @@ func (db *PostgresDB) SetUserIsActive(user *models.User) error {
 	}
 	return res.Error
 }
+
+func (db *PostgresDB) GetUsersReviews(userID string) ([]models.PullRequest, error) {
+	pullRequests := make([]models.PullRequest, 0)
+	err := db.Conn.
+		Where("assigned_reviews LIKE ?", "%\""+userID+"\"%").
+		Find(&pullRequests).Error
+	return pullRequests, err
+}

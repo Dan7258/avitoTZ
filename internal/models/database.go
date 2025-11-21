@@ -10,6 +10,7 @@ type Model interface {
 	Migrate() error
 
 	SetUserIsActive(user *User) error
+	GetUsersReviews(userID string) ([]PullRequest, error)
 
 	AddTeam(team *Team) error
 	GetTeamByName(teamName string) (*Team, error)

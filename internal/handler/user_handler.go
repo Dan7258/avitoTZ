@@ -27,3 +27,27 @@ func (h *Handler) SetIsActive(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(user)
 }
+
+func (h *Handler) GetReview(w http.ResponseWriter, r *http.Request) {
+	userID := r.URL.Query().Get("user_id")
+	if userID == "" {
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(struct {
+			UserID       string               `json:"user_id"`
+			PullRequests []models.PullRequest `json:"pull_requests"`
+		}{
+			UserID:       userID,
+			PullRequests: []models.PullRequest{},
+		})
+		return
+	}
+	reviews, _ := h.db.GetUsersReviews(userID)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(struct {
+		UserID       string               `json:"user_id"`
+		PullRequests []models.PullRequest `json:"pull_requests"`
+	}{
+		UserID:       userID,
+		PullRequests: reviews,
+	})
+}

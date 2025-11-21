@@ -24,7 +24,7 @@ func main() {
 	h := handler.InitHandler(db)
 	mux := routes.SetRoutes(h)
 	server := &http.Server{
-		Addr:         ":8080",
+		Addr:         ":63342",
 		Handler:      mux,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,

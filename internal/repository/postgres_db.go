@@ -1,10 +1,15 @@
 package repository
 
 import (
+	"errors"
 	"fmt"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"os"
+)
+
+var (
+	ZeroUpdatedRowsError = errors.New("zero updated rows")
 )
 
 type PostgresDB struct {

@@ -9,7 +9,7 @@ type Model interface {
 	ConnectToDatabase() error
 	Migrate() error
 
-	SetUserActive(userID string) error
+	SetUserIsActive(user *User) error
 
 	AddTeam(team *Team) error
 	GetTeamByName(teamName string) (*Team, error)

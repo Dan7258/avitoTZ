@@ -27,6 +27,6 @@ func jsonError(w http.ResponseWriter, status CodeError, msg string, httpCode int
 		Code:    status,
 		Message: msg,
 	})
-	w.WriteHeader(httpCode)
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(httpCode)
 }

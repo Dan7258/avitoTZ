@@ -17,7 +17,7 @@ func (h *Handler) CreatePullRequest(w http.ResponseWriter, r *http.Request) {
 		jsonError(w, NotFound, "resource not found", http.StatusNotFound)
 		return
 	}
-	pullRequest := &models.PullRequestShortWith[[]string]{}
+	pullRequest := &models.PullRequestShortWith[models.Array]{}
 	pullRequest.PullRequestID = data.PullRequestID
 	pullRequest.PullRequestName = data.PullRequestName
 	pullRequest.AuthorId = data.AuthorId
@@ -30,33 +30,43 @@ func (h *Handler) CreatePullRequest(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(pullRequest)
-
+	resp := map[string]interface{}{
+		"pull_request_id":   pullRequest.PullRequestID,
+		"pull_request_name": pullRequest.PullRequestName,
+		"author_id":         pullRequest.AuthorId,
+		"status":            pullRequest.Status,
+		"assigned_reviews":  pullRequest.Extra.AssignedReviews,
+	}
+	jsonOK(w, resp, "pr", http.StatusCreated)
 }
 
-//
-//func (h *Handler) SetPullRequestMerged(w http.ResponseWriter, r *http.Request) {
-//	data := &struct {
-//		PullRequestID string `json:"pull_request_id"`
-//	}{}
-//	err := json.NewDecoder(r.Body).Decode(&data)
-//	if err != nil {
-//		jsonError(w, NotValid, "Not valid data", http.StatusBadRequest)
-//		return
-//	}
-//	pullRequest := &models.PullRequest{
-//		PullRequestID: data.PullRequestID,
-//	}
-//	err = h.db.SetPullRequestMerged(pullRequest)
-//	if err != nil {
-//		jsonError(w, NotFound, "resource not found", http.StatusNotFound)
-//		return
-//	}
-//	w.Header().Set("Content-Type", "application/json")
-//	json.NewEncoder(w).Encode(pullRequest)
-//}
+func (h *Handler) SetPullRequestMerged(w http.ResponseWriter, r *http.Request) {
+	data := &struct {
+		PullRequestID string `json:"pull_request_id"`
+	}{}
+	err := json.NewDecoder(r.Body).Decode(&data)
+	if err != nil {
+		jsonError(w, NotValid, "Not valid data", http.StatusBadRequest)
+		return
+	}
+	pullRequest := &models.PullRequestShortWith[models.ArrayAndMergedAt]{}
+	pullRequest.PullRequestID = data.PullRequestID
+	err = h.db.SetPullRequestMerged(pullRequest)
+	if err != nil {
+		jsonError(w, NotFound, "resource not found", http.StatusNotFound)
+		return
+	}
+	resp := map[string]interface{}{
+		"pull_request_id":   pullRequest.PullRequestID,
+		"pull_request_name": pullRequest.PullRequestName,
+		"author_id":         pullRequest.AuthorId,
+		"status":            pullRequest.Status,
+		"assigned_reviews":  pullRequest.Extra.AssignedReviews,
+		"merged_at":         pullRequest.Extra.MergedAt,
+	}
+	jsonOK(w, resp, "pr", http.StatusOK)
+}
+
 //
 //func (h *Handler) ReassignPullRequest(w http.ResponseWriter, r *http.Request) {
 //	data := &struct {

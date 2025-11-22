@@ -9,7 +9,7 @@ type Model interface {
 	AddTeam(team *Team) error
 	GetTeamByName(teamName string) (*Team, error)
 
-	CreatePullRequest(pullRequest *PullRequestShortWith[[]string]) error
-	SetPullRequestMerged(pullRequest *PullRequest) error
+	CreatePullRequest(pullRequest *PullRequestShortWith[Array]) error
+	SetPullRequestMerged(pullRequest *PullRequestShortWith[ArrayAndMergedAt]) error
 	ReassignPullRequest(pullRequestID, oldReviewerId string) (*PullRequest, error)
 }

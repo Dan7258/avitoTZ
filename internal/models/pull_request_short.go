@@ -14,3 +14,11 @@ type PullRequestShortWith[T any] struct {
 	Status          PullRequestStatus `json:"status"`
 	Extra           T                 `json:",inline"`
 }
+
+type Array struct {
+	AssignedReviews []string `json:"assigned_reviews"`
+}
+type ArrayAndMergedAt struct {
+	AssignedReviews []string `json:"assigned_reviews,inline"`
+	MergedAt        string   `json:"merged_at"`
+}

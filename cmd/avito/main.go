@@ -7,6 +7,7 @@ import (
 	"avito/internal/routes"
 	"log"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -22,13 +23,15 @@ func main() {
 	}
 	h := handler.InitHandler(db)
 	mux := routes.SetRoutes(h)
+	port := ":" + os.Getenv("LOCALHOST_PORT")
 	server := &http.Server{
-		Addr:         ":63342",
+		Addr:         port,
 		Handler:      mux,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 		IdleTimeout:  120 * time.Second,
 	}
+	log.Printf("Starting server on port %s\n", port)
 	err = server.ListenAndServe()
 	if err != nil {
 		log.Fatal(err)

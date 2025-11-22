@@ -19,6 +19,20 @@ func (db *PostgresDB) SetUserIsActive(user *models.User) error {
 	return tx.Commit()
 }
 
-func (db *PostgresDB) GetUsersReviews(userID string) ([]models.PullRequest, error) {
-	return nil, nil
+func (db *PostgresDB) GetUsersReviews(userID string) ([]models.PullRequestShort, error) {
+	pr := make([]models.PullRequestShort, 0)
+	rows, err := db.Conn.Query("select pull_request_id, pull_request_name, author_id, status from pull_request where $1 = any(assigned_reviews)", userID)
+	if err != nil {
+		return pr, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		pullRequest := models.PullRequestShort{}
+		err = rows.Scan(&pullRequest.PullRequestID, &pullRequest.PullRequestName, &pullRequest.AuthorId, &pullRequest.Status)
+		if err != nil {
+			return pr, err
+		}
+		pr = append(pr, pullRequest)
+	}
+	return pr, nil
 }

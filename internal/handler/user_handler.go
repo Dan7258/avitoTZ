@@ -32,8 +32,8 @@ func (h *Handler) GetReview(w http.ResponseWriter, r *http.Request) {
 	reviews, _ := h.db.GetUsersReviews(userID)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(struct {
-		UserID       string               `json:"user_id"`
-		PullRequests []models.PullRequest `json:"pull_requests"`
+		UserID       string                    `json:"user_id"`
+		PullRequests []models.PullRequestShort `json:"pull_requests"`
 	}{
 		UserID:       userID,
 		PullRequests: reviews,

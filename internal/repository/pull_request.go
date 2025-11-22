@@ -13,10 +13,15 @@ func (db *PostgresDB) CreatePullRequest(pullRequest *models.PullRequestShortWith
 	}
 	defer tx.Rollback()
 	pullRequest.Status = models.Open
+	id := ""
+	err = tx.QueryRow("select id from users where id = $1", pullRequest.AuthorId).Scan(&id)
+	if err != nil {
+		return models.NotFoundError
+	}
 	var text string
 	err = tx.QueryRow(
 		`insert into pull_request (pull_request_id, pull_request_name, author_id, status, assigned_reviews) 
-				(select $1, $2, $3, $4, array_agg(id) from users where team_name = (select team_name from users where id = $5) and is_active = true and id != $6 limit 2) 
+				(select $1, $2, $3, $4, array(select id from users where team_name = (select team_name from users where id = $5) and is_active = true and id != $6 limit 2))
 				returning pull_request_id, pull_request_name, author_id, status, assigned_reviews`,
 		pullRequest.PullRequestID, pullRequest.PullRequestName, pullRequest.AuthorId, pullRequest.Status, pullRequest.AuthorId, pullRequest.AuthorId).
 		Scan(&pullRequest.PullRequestID, &pullRequest.PullRequestName, &pullRequest.AuthorId, &pullRequest.Status, &text)

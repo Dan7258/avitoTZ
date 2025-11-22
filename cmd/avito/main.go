@@ -17,7 +17,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = db.Migrate()
 	if err != nil {
 		log.Fatal(err)
 	}

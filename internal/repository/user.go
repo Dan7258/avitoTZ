@@ -3,23 +3,9 @@ package repository
 import "avito/internal/models"
 
 func (db *PostgresDB) SetUserIsActive(user *models.User) error {
-	res := db.Conn.
-		Model(user).
-		Where("user_id = ?", user.UserID).
-		Update("is_active", user.IsActive).
-		Scan(user)
-	if res.Error == nil {
-		if res.RowsAffected == 0 {
-			return models.ZeroUpdatedRowsError
-		}
-	}
-	return res.Error
+	return nil
 }
 
 func (db *PostgresDB) GetUsersReviews(userID string) ([]models.PullRequest, error) {
-	pullRequests := make([]models.PullRequest, 0)
-	err := db.Conn.
-		Where("assigned_reviews LIKE ?", "%\""+userID+"\"%").
-		Find(&pullRequests).Error
-	return pullRequests, err
+	return nil, nil
 }

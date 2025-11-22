@@ -3,7 +3,6 @@ package handler
 import (
 	"avito/internal/models"
 	"encoding/json"
-	"log"
 	"net/http"
 )
 
@@ -12,18 +11,14 @@ func (h *Handler) AddTeam(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&team)
 	if err != nil {
 		jsonError(w, NotValid, "Not valid data", http.StatusBadRequest)
-		log.Println(err.Error())
 		return
 	}
 	err = h.db.AddTeam(&team)
 	if err != nil {
 		jsonError(w, TeamExists, "team_name already exists", http.StatusBadRequest)
-		log.Println(err.Error())
 		return
 	}
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(team)
+	jsonOK(w, team, "team", http.StatusCreated)
 
 }
 
@@ -38,6 +33,5 @@ func (h *Handler) GetTeam(w http.ResponseWriter, r *http.Request) {
 		jsonError(w, NotFound, "team_name not found", http.StatusNotFound)
 		return
 	}
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(team)
+	jsonOK(w, team, "team", http.StatusOK)
 }

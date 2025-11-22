@@ -1,18 +1,15 @@
 package repository
 
 import (
+	"database/sql"
 	"fmt"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
+	_ "github.com/jackc/pgx/v5/stdlib"
+	"log"
 	"os"
 )
 
 type PostgresDB struct {
-	Conn *gorm.DB
-}
-
-func (db *PostgresDB) GetConn() *gorm.DB {
-	return db.Conn
+	Conn *sql.DB
 }
 
 func (db *PostgresDB) ConnectToDatabase() error {
@@ -24,6 +21,9 @@ func (db *PostgresDB) ConnectToDatabase() error {
 		os.Getenv("POSTGRES_PORT"),
 		os.Getenv("POSTGRES_SSLMODE"))
 	var err error
-	db.Conn, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	db.Conn, err = sql.Open("pgx", dsn)
+	if err == nil {
+		log.Println("Successfully connected to database")
+	}
 	return err
 }

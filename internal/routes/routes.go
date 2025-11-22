@@ -15,6 +15,6 @@ func SetRoutes(h *handler.Handler) *http.ServeMux {
 
 	mux.HandleFunc("POST /pullRequest/create", h.CreatePullRequest)
 	mux.HandleFunc("POST /pullRequest/merge", h.SetPullRequestMerged)
-	//mux.HandleFunc("POST /pullRequest/reassign", h.ReassignPullRequest)
+	mux.HandleFunc("POST /pullRequest/reassign", h.ReassignPullRequest)
 	return mux
 }

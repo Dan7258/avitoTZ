@@ -67,27 +67,35 @@ func (h *Handler) SetPullRequestMerged(w http.ResponseWriter, r *http.Request) {
 	jsonOK(w, resp, "pr", http.StatusOK)
 }
 
-//
-//func (h *Handler) ReassignPullRequest(w http.ResponseWriter, r *http.Request) {
-//	data := &struct {
-//		PullRequestID string `json:"pull_request_id"`
-//		OldReviewerID string `json:"old_reviewer_id"`
-//	}{}
-//	err := json.NewDecoder(r.Body).Decode(&data)
-//	if err != nil {
-//		jsonError(w, NotValid, "Not valid data", http.StatusBadRequest)
-//		return
-//	}
-//	pullRequest := new(models.PullRequest)
-//	pullRequest, err = h.db.ReassignPullRequest(data.PullRequestID, data.OldReviewerID)
-//	if err != nil {
-//		if err == models.NotChangedError {
-//			jsonError(w, PrMerged, "cannot reassign on merged PR", http.StatusConflict)
-//		} else {
-//			jsonError(w, NotFound, "resource not found", http.StatusNotFound)
-//		}
-//		return
-//	}
-//	w.Header().Set("Content-Type", "application/json")
-//	json.NewEncoder(w).Encode(pullRequest)
-//}
+func (h *Handler) ReassignPullRequest(w http.ResponseWriter, r *http.Request) {
+	data := &struct {
+		PullRequestID string `json:"pull_request_id"`
+		OldReviewerID string `json:"old_reviewer_id"`
+	}{}
+	err := json.NewDecoder(r.Body).Decode(&data)
+	if err != nil {
+		jsonError(w, NotValid, "Not valid data", http.StatusBadRequest)
+		return
+	}
+	pullRequest := new(models.PullRequestShortWith[models.ArrayAndReplaceBy])
+	pullRequest, err = h.db.ReassignPullRequest(data.PullRequestID, data.OldReviewerID)
+	if err != nil {
+		if err == models.NotChangedError {
+			jsonError(w, PrMerged, "cannot reassign on merged PR", http.StatusConflict)
+		} else {
+			jsonError(w, NotFound, "resource not found", http.StatusNotFound)
+		}
+		return
+	}
+	resp := map[string]interface{}{
+		"pull_request_id":   pullRequest.PullRequestID,
+		"pull_request_name": pullRequest.PullRequestName,
+		"author_id":         pullRequest.AuthorId,
+		"status":            pullRequest.Status,
+		"assigned_reviews":  pullRequest.Extra.AssignedReviews,
+	}
+	resp = createResponse(resp, "pr")
+	resp["replaced_by"] = pullRequest.Extra.ReplaceBy
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(resp)
+}

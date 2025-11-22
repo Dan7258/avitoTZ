@@ -62,11 +62,63 @@ func (db *PostgresDB) SetPullRequestMerged(pullRequest *models.PullRequestShortW
 		return err
 	}
 	pullRequest.Extra.AssignedReviews = append(pullRequest.Extra.AssignedReviews, parseTextToArray(text)...)
-	return nil
+	return tx.Commit()
 }
 
-func (db *PostgresDB) ReassignPullRequest(pullRequestID, oldReviewerId string) (*models.PullRequest, error) {
-	return nil, nil
+func (db *PostgresDB) ReassignPullRequest(pullRequestID, oldReviewerId string) (*models.PullRequestShortWith[models.ArrayAndReplaceBy], error) {
+	tx, err := db.Conn.Begin()
+	pullRequest := &models.PullRequestShortWith[models.ArrayAndReplaceBy]{}
+	if err != nil {
+		return pullRequest, err
+	}
+	id := ""
+	err = tx.QueryRow("select pull_request_id from pull_request where pull_request_id = $1", pullRequestID).Scan(&id)
+	if err != nil {
+
+		return pullRequest, models.NotFoundError
+	}
+	err = tx.QueryRow("select id from users where id = $1", oldReviewerId).Scan(&id)
+	if err != nil {
+
+		return pullRequest, models.NotFoundError
+	}
+	var text string
+	err = tx.QueryRow("select status, author_id, assigned_reviews, pull_request_id, pull_request_name from pull_request where pull_request_id = $1", pullRequestID).
+		Scan(&pullRequest.Status, &pullRequest.AuthorId, &text, &pullRequest.PullRequestID, &pullRequest.PullRequestName)
+	if err != nil {
+
+		return pullRequest, models.NotFoundError
+	} else if pullRequest.Status != models.Open {
+		return pullRequest, models.NotChangedError
+	}
+	pullRequest.Extra.AssignedReviews = append(pullRequest.Extra.AssignedReviews, parseTextToArray(text)...)
+	id = ""
+	_ = tx.QueryRow(
+		`select id from users where team_name = (select team_name from users where id = $1) and is_active = true and id != $2 and id != $3 limit 1`,
+		oldReviewerId, pullRequest.AuthorId, oldReviewerId).
+		Scan(&id)
+
+	var arr []string
+	if id != "" {
+		arr = append(arr, id)
+	}
+	for _, a := range pullRequest.Extra.AssignedReviews {
+		if a != oldReviewerId {
+			arr = append(arr, a)
+		}
+	}
+	pullRequest.Extra.AssignedReviews = arr
+	pullRequest.Extra.ReplaceBy = id
+
+	_, err = tx.Exec(
+		"update users set is_active = $1 where id = $2",
+		true, oldReviewerId)
+	if err != nil {
+		log.Println(err)
+		return pullRequest, err
+	}
+	defer tx.Rollback()
+	return pullRequest, tx.Commit()
 }
 
 func parseTextToArray(text string) []string {

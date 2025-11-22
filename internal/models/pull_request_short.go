@@ -22,3 +22,8 @@ type ArrayAndMergedAt struct {
 	AssignedReviews []string `json:"assigned_reviews,inline"`
 	MergedAt        string   `json:"merged_at"`
 }
+
+type ArrayAndReplaceBy struct {
+	AssignedReviews []string `json:"assigned_reviews"`
+	ReplaceBy       string   `json:"replace_by"`
+}

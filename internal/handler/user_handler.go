@@ -24,8 +24,7 @@ func (h *Handler) SetIsActive(w http.ResponseWriter, r *http.Request) {
 		jsonError(w, NotFound, "resource not found", http.StatusNotFound)
 		return
 	}
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(user)
+	jsonOK(w, user, "user", http.StatusOK)
 }
 
 func (h *Handler) GetReview(w http.ResponseWriter, r *http.Request) {

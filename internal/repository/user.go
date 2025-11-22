@@ -1,9 +1,22 @@
 package repository
 
-import "avito/internal/models"
+import (
+	"avito/internal/models"
+)
 
 func (db *PostgresDB) SetUserIsActive(user *models.User) error {
-	return nil
+	tx, err := db.Conn.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	err = tx.QueryRow(
+		"update users set is_active = $1 where id = $2 returning id, username, is_active, team_name",
+		user.IsActive, user.UserID).Scan(&user.UserID, &user.Username, &user.IsActive, &user.TeamName)
+	if err != nil {
+		return err
+	}
+	return tx.Commit()
 }
 
 func (db *PostgresDB) GetUsersReviews(userID string) ([]models.PullRequest, error) {

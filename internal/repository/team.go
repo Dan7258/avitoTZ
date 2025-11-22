@@ -13,7 +13,7 @@ func (db *PostgresDB) AddTeam(team *models.Team) error {
 		return models.AlreadyExistsError
 	}
 	for _, member := range team.Members {
-		_, err := tx.Exec("insert into users (id, username, is_active, team_name) values ($1, $2, $3, $4)",
+		_, err = tx.Exec("insert into users (id, username, is_active, team_name) values ($1, $2, $3, $4)",
 			member.UserID, member.Username, member.IsActive, team.TeamName)
 		if err != nil {
 			return models.AlreadyExistsError

@@ -3,6 +3,7 @@ package handler
 import (
 	"avito/internal/models"
 	"encoding/json"
+	"log"
 	"net/http"
 )
 
@@ -14,6 +15,7 @@ func (h *Handler) CreatePullRequest(w http.ResponseWriter, r *http.Request) {
 	}{}
 	err := json.NewDecoder(r.Body).Decode(&data)
 	if err != nil {
+		//log.Println(err, "1")
 		jsonError(w, NotFound, "resource not found", http.StatusNotFound)
 		return
 	}
@@ -24,8 +26,10 @@ func (h *Handler) CreatePullRequest(w http.ResponseWriter, r *http.Request) {
 	err = h.db.CreatePullRequest(pullRequest)
 	if err != nil {
 		if err == models.NotFoundError {
+			log.Println(err, "2")
 			jsonError(w, NotFound, "resource not found", http.StatusNotFound)
 		} else {
+			log.Println(err, "3")
 			jsonError(w, PrExists, "PR id already exists", http.StatusConflict)
 		}
 		return

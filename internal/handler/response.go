@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 )
 
@@ -38,6 +39,7 @@ func jsonOK(w http.ResponseWriter, data interface{}, keyName string, httpCode in
 	encoder := json.NewEncoder(w)
 	encoder.SetIndent("", "  ")
 	encoder.Encode(resp)
+	log.Println(resp)
 	w.Header().Set("Content-Type", "application/json")
 }
 

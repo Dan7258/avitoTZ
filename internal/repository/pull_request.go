@@ -26,11 +26,10 @@ func (db *PostgresDB) CreatePullRequest(pullRequest *models.PullRequestShortWith
 		pullRequest.PullRequestID, pullRequest.PullRequestName, pullRequest.AuthorId, pullRequest.Status, pullRequest.AuthorId, pullRequest.AuthorId).
 		Scan(&pullRequest.PullRequestID, &pullRequest.PullRequestName, &pullRequest.AuthorId, &pullRequest.Status, &text)
 	if err != nil {
-		log.Println(err)
 		return err
 	}
 	pullRequest.Extra.AssignedReviews = append(pullRequest.Extra.AssignedReviews, parseTextToArray(text)...)
-	_, err = tx.Exec("update users set is_active = false where id = any($1)", pullRequest.Extra)
+	_, err = tx.Exec("update users set is_active = false where id = any($1::text[])", pullRequest.Extra.AssignedReviews)
 	if err != nil {
 		log.Println(err)
 		return err
